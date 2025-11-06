@@ -2,8 +2,9 @@
 #include "freertos/task.h"
 #include "driver/gpio.h"
 #include "esp_log.h"
+#include "soc/gpio_num.h"
 
-#define BLINK_GPIO (gpio_num_t)2
+#define BLINK_GPIO GPIO_NUM_2
 static const char *TAG = "BLINK";
 
 extern "C" void app_main(void)
