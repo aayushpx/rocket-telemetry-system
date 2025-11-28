@@ -6,7 +6,7 @@
 
 #define BLINK_GPIO GPIO_NUM_2 // define LED pin
 static const char *TAG = "BLINK"; // label for debugging
-
+// brah
 extern "C" void app_main(void)
 {
     gpio_reset_pin(BLINK_GPIO); // makes sure pin is in default state
