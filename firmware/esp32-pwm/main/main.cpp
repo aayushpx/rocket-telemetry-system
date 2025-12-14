@@ -22,7 +22,7 @@ void setup_pwm() {
         .duty_resolution = LEDC_DUTY_RESOLUTION,
         .timer_num       = LEDC_TIMER,
         .freq_hz         = 5000,
-        .clk_cfg         = LEDC_AUTO_CLK,
+        .clk_cfg         = LEDC_AUTO_CLK
     };
     ESP_ERROR_CHECK(ledc_timer_config(&timer_config));
 
