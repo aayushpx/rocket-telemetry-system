@@ -5,46 +5,66 @@
 #include "esp_log.h"
 #include "rom/ets_sys.h" 
 
-static const char *TAG = "ROCKET_TELEMETRY";
-
-// Change this to the pin you actually used on your breadboard!
-#define DHT_GPIO GPIO_NUM_32 
-
-// This block tells the ESP-IDF (which is C) how to find our C++ function
-extern "C" {
-    void app_main(void);
-}
-
-void app_main(void) {
-    ESP_LOGI(TAG, "Starting Month 1: DHT11 Handshake Test...");
+class DHT11 {
+public:
+  DHT11(gpio_num_t pin) {
+    _pin = pin;
+  }
+  void init() {
+    gpio_reset_pin(_pin);
+  }
+  float readTemperature() {
+    uint8_t data[5] = {0, 0, 0, 0, 0}; // 5 bytes = 40 bits
     
-    while (1) {
-        // Step 1: Initialize the pin as Output to send the "Wake up" signal
-        gpio_reset_pin(DHT_GPIO);
-        gpio_set_direction(DHT_GPIO, GPIO_MODE_OUTPUT);
+    gpio_set_direction(_pin, GPIO_MODE_OUTPUT);
+    gpio_set_level(_pin, 0);
+    vTaskDelay(pdMS_TO_TICKS(20));
+    gpio_set_level(_pin, 1);
+    ets_delay_us(40);
+    gpio_set_direction(_pin, GPIO_MODE_INPUT);
+    
+    if (wait_for_level(0, 80) == -1) return -1.0;
+    if (wait_for_level(1, 80) == -1) return -1.0;
+    if (wait_for_level(0, 80) == -1) return -1.0;
 
-        // Step 2: Send Start Signal (Pull LOW for 20ms)
-        gpio_set_level(DHT_GPIO, 0);
-        vTaskDelay(pdMS_TO_TICKS(20)); 
-        
-        // Step 3: Release the line (Pull HIGH) and wait for sensor
-        gpio_set_level(DHT_GPIO, 1);
-        ets_delay_us(40);
-        
-        // Step 4: Switch to Input to listen for the sensor's response
-        gpio_set_direction(DHT_GPIO, GPIO_MODE_INPUT);
-        ets_delay_us(10); 
+    for (int i = 0; i < 40; i++) {
+      if (wait_for_level(1, 60) == -1) return -1.1;
 
-        // Step 5: The Handshake Check
-        // If the sensor is alive, it will pull the line LOW to acknowledge us.
-        if (gpio_get_level(DHT_GPIO) == 0) {
-            ESP_LOGI(TAG, "--- SUCCESS: SENSOR IS ALIVE! ---");
-        } else {
-            ESP_LOGE(TAG, "--- FAILURE: NO RESPONSE ---");
-            ESP_LOGI(TAG, "Troubleshoot: Check your GND/3.3V and signal pin.");
-        }
+      int duration = wait_for_level(0, 80);
+      if (duration == -1) return -1.2;
 
-        // Wait 3 seconds before the next telemetry pulse
-        vTaskDelay(pdMS_TO_TICKS(3000)); 
+      if (duration > 35) {
+        data[i/8] <<= 1;
+        data[i/8] |= 1;
+      } else {
+        data[i/8] <<= 1;
+      }
     }
+
+    return (float)data[2];
+  }
+ 
+private:
+  gpio_num_t _pin;
+
+  int wait_for_level(int level, int timeout_us) {
+    int timer = 0;
+    while(gpio_get_level(_pin) != level) {
+      if (timer > timeout_us) return -1;
+      ets_delay_us(1);
+      timer++;
+    }
+    return timer;
+  }
+};
+
+extern "C" void app_main(void) {
+  DHT11 cabin_sensor(GPIO_NUM_32);
+  cabin_sensor.init();
+  while(1) {
+    float t = cabin_sensor.readTemperature();
+    ESP_LOGI("TELEMETRY", "Temp: %.1f", t);
+    vTaskDelay(pdMS_TO_TICKS(2000));
+  }
 }
+

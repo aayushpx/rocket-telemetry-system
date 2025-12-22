@@ -1,9 +1,12 @@
 # Rocket Telemetry System
 
-This project is a model rocket launch tracking system with real-time sensor telemetry, data logging and vision-based tracking.
+A high-performance model rocket telemetry suite featuring real-time sensor fusion, C++ drivers, and data visualization.
 
-## Goal
-- Build embedded C++ systems on ESP32
-- Integrate multiple sensors
-- Stream telemetry data to Raspberry Pi
-- Implement tracking and visualisation
+## Current Progress
+- **Firmware:** Completed custom DHT11 driver in C++ (Manual Bit-banging & Bitwise reconstruction).
+- **Hardware:** ESP32-based flight computer prototype established on breadboard.
+
+## Tech Stack
+- **Language:** Embedded C++ (OOP)
+- **Framework:** ESP-IDF v5.2
+- **Hardware:** ESP32-WROOM, DHT11 Sensor"
