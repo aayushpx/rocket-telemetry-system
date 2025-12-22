@@ -7,6 +7,6 @@ A high-performance model rocket telemetry suite featuring real-time sensor fusio
 - **Hardware:** ESP32-based flight computer prototype established on breadboard.
 
 ## Tech Stack
-- **Language:** Embedded C++ (OOP)
+- **Language:** Embedded C++
 - **Framework:** ESP-IDF v5.2
-- **Hardware:** ESP32-WROOM, DHT11 Sensor"
+- **Hardware:** ESP32-WROOM, DHT11 Sensor
