@@ -4,7 +4,7 @@
 #include "driver/gpio.h"
 #include "esp_log.h"
 #include "rom/ets_sys.h" 
-
+// wagwan
 class DHT11 {
 public:
   DHT11(gpio_num_t pin) {
